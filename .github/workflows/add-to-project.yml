@@ -5,17 +5,16 @@
 
 name: Add PR to project
 on:
-  issues:
+  pull_request:
     types:
-      - opened
+      - ready_for_review
 jobs:
-  add_issue_to_board:
-    permissions: write-all
+  track_pr:
     runs-on: ubuntu-latest
     steps:
-      - name: GitHub App token
+      - name: Generate token
         id: generate_token
-        uses: tibdex/github-app-token@v1.5.0
+        uses: tibdex/github-app-token@36464acb844fc53b9b8b2401da68844f6b05ebb0
         with:
           app_id: ${{ secrets.APP_ID }}
           private_key: ${{ secrets.APP_PEM }}
@@ -23,8 +22,8 @@ jobs:
       - name: Get project data
         env:
           GITHUB_TOKEN: ${{ steps.generate_token.outputs.token }}
-          ORGANIZATION: sarahetterorg
-          PROJECT_NUMBER: 1
+          ORGANIZATION: YOUR_ORGANIZATION
+          PROJECT_NUMBER: YOUR_PROJECT_NUMBER
         run: |
           gh api graphql -f query='
             query($org: String!, $number: Int!) {
@@ -59,16 +58,16 @@ jobs:
       - name: Add PR to project
         env:
           GITHUB_TOKEN: ${{ steps.generate_token.outputs.token }}
-          ISSUE_ID: ${{ github.event.issue.node_id }}
+          PR_ID: ${{ github.event.pull_request.node_id }}
         run: |
           item_id="$( gh api graphql -f query='
-            mutation($project:ID!, $issue:ID!) {
-              addProjectV2ItemById(input: {projectId: $project, contentId: $issue}) {
+            mutation($project:ID!, $pr:ID!) {
+              addProjectV2ItemById(input: {projectId: $project, contentId: $pr}) {
                 item {
                   id
                 }
               }
-            }' -f project=$PROJECT_ID -f issue=$ISSUE_ID --jq '.data.addProjectV2ItemById.item.id')"
+            }' -f project=$PROJECT_ID -f pr=$PR_ID --jq '.data.addProjectV2ItemById.item.id')"
 
             echo 'ITEM_ID='$item_id >> $GITHUB_ENV
 
