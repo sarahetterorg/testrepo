@@ -18,14 +18,8 @@ jobs:
         with:
           app_id: ${{ secrets.APP_ID }}
           private_key: ${{ secrets.APP_PEM }}
-      - name: show login status
-        run: gh auth status
-        env:
-          GH_TOKEN: ${{ steps.generate_token.outputs.token }}
       - name: Add issue to Project
         uses: actions/add-to-project@v0.1.0
         with:
           project-url: https://github.com/orgs/sarahetterorg/projects/1
           github-token: ${{ steps.generate_token.outputs.token }}
-        env:
-          GH_TOKEN: ${{ steps.generate_token.outputs.token }}
