@@ -28,9 +28,7 @@ jobs:
           gh api graphql -f query='
             query($org: String!, $projectNumber: Int!) {
               organization(login: $org){
-                projectV2(number: $projectNumber) {
-                  id
-                }
+                description
               }
             }' -f org=$ORGANIZATION -F projectNumber=$PROJECT_NUMBER > project_data.json
 
