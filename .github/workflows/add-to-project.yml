@@ -23,14 +23,16 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ steps.generate_token.outputs.token }}
           ORGANIZATION: sarahetterorg
-          # PROJECT_NUMBER: 1
+          PROJECT_NUMBER: 1
         run: |
           gh api graphql -f query='
-            query($org: String!) {
+            query($org: String!, $projectNumber: Int!) {
               organization(login: $org){
-                description
+                projectV2(number: $projectNumber) {
+                  id
+                }
               }
-            }' -f org=$ORGANIZATION > project_data.json
+            }' -f org=$ORGANIZATION -F projectNumber=$PROJECT_NUMBER > project_data.json
 
           echo 'PROJECT_ID='$(jq '.data.organization.projectV2.id' project_data.json) >> $GITHUB_ENV
 
